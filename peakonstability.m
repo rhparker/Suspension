@@ -1,7 +1,8 @@
 clear config;
+clear par;
 
 % grid for x
-L = 25;
+L = 15;
 N = 512;
 
 % starting parameters
@@ -31,25 +32,30 @@ elseif strcmp(config.method, 'Chebyshev')
     N = N + 1;
     config.Dirichlet = 'LR';
     config.num_Dirichlet = 2;
-%     config.Neumann = 'L';
     [D, xout] = D_cheb(N, L, config.degree, config);
 end
     
 u = par.c.*exp(-abs(xout));
 
-% options to pass to fsolve
-opts.Jacobian = 'on';
-opts.iter = 1000;
+% options = optimset('Display','iter','Algorithm','levenberg-marquardt','MaxIter',500,'Jacobian','on');
+% options.TolFun = 1e-12;
+% options.TolX = 1e-12;
+% [u1,fval,exitflag,output,jacobian1]  = fsolve( @(u) Bfamily_int(xout,u,par,D,config), u, options);
 
-[~, uout, fval] = fsolveequation(@Bfamily_int, xout, u, par, N, L, config, opts);
-plot(xout, uout,'.');
-plot(xout, u, xout, uout);
 
-config.Neumann = 'R';
-[~, uout, fval] = fsolveequation(@Bfamily, xout, u, par, N, L, config, opts);
-plot(xout, u, xout, uout);
+% % options to pass to fsolve
+% opts.Jacobian = 'on';
+% opts.iter = 1000;
+% [~, uout, fval] = fsolveequation(@Bfamily_int, xout, u, par, N, L, config, opts);
+% 
+% plot(xout, uout,'.');
+% plot(xout, u, xout, uout);
+% 
+% config.Neumann = 'R';
+% [~, uout, fval] = fsolveequation(@Bfamily, xout, u, par, N, L, config, opts);
+% plot(xout, u, xout, uout);
 
-[fval, J] = Bfamily(xout,uout,par,D,config);
+[fval, J] = Bfamily(xout,u,par,D,config);
 
 Id = eye(N - config.num_Dirichlet);
 B = inv(Id - D(:,:,2));

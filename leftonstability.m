@@ -1,13 +1,12 @@
 
 % grid for x
 L = 20;
-N = 256;
+N = 512;
 
 % starting parameters
-par.c = 2;
-par.b = -5;
+par.c = 0;
 
-% % method configuration
+% method configuration
 %  Fourier
 config.method = 'Fourier';
 config.BC = 'periodic';
@@ -20,22 +19,52 @@ D = D_fourier(N, L, config.degree);
 % config.method = 'Chebyshev';
 % config.degree = 3;
 % config.Dirichlet = 'LR';
+% % config.Neumann = 'LR';
 % config.num_Dirichlet = 2;
 % [D, xout] = D_cheb(N, L, config.degree, config);
 
-u = lefton(xout, 0, 1, par);
+par.b = -2;
 
-opts.Jacobian = 'on';
-[~, uout, fval] = fsolveequation(@Bfamily_int, xout, u, par, N, L, config, opts);
-plot(xout, uout);
+% generate c = 0 solution
+u = lefton(xout, 0, 20, par);
+fval = Bfamily(xout, u, par, D, config);
 
-% opts.Jacobian = 'off';
+% disp(['norm when plugged in: ', num2str(norm(fval))]); 
+
+% load solution
+load uc_out;
+index = 1;
+% u = uc(1:end-1, index);
+% par.c = uc(end, index);
+
+% figure;
+% plot(xout, fval);
+
+
+%%
+
+% opts.Jacobian = 'on';
+% [~, uout, fval] = fsolveequation(@Bfamily_int, xout, u, par, N, L, config, opts);
+% plot(xout, uout);
+
+% opts.Jacobian = 'on';
 % [~, uout, fval] = fsolveequation(@Bfamily, xout, uout, par, N, L, config, opts);
 
-[fval, J] = Bfamily(xout,uout,par,D,config);
-Id = eye(N);
+uout = u;
+
+Id = eye(length(xout));
 B = inv(Id - D(:,:,2));
-[V, lambdaD] = eig(B*J);
+
+[fval, J, Jnl] = Bfamily(xout,u,par,D,config);
+    
+M1 = par.c * D(:,:,1) + B*Jnl;
+
+[V, lambdaD] = eig(M1);
+
 lambda = diag(lambdaD);
-realL = lambda( find(abs(imag(lambda)) == 0) );
-posL = realL( find(realL >= 0));
+
+figure;
+plot(lambda, '.');
+title(['Lefton Eigenvalues (Fourier spectral methods), c = 0']);
+xlabel('real part');
+ylabel('imaginary part');
