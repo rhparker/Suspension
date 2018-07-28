@@ -4,7 +4,8 @@ function result = Iz(x, z, par, D)
 
 D1 = D(:,:,1);
 D2 = D(:,:,2);
-h = x(2) - x(1);
+% h = x(2) - x(1);
+h = abs( x(2:end) - x(1:end-1) );
 c = par.c;
 
 % first, we need F, which is cumulative integral of 
@@ -19,6 +20,7 @@ H = (1/2) * ( abs(D2*z).^2 - c^2 * abs(D1*z).^2 ) + F;
 % H = abs(D2*z).^2 - c^2 * abs(D1*z).^2;
 
 % integrate over x
-result = sum( H(1:end-1) ) * h;
+% result = sum( H(1:end-1) ) * h;
+result = sum( H(1:end-1) .* h );
 
 end

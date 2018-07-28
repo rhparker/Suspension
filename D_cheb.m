@@ -111,5 +111,4 @@ if isfield(config, 'Neumann')
     end
 end
 
-
 end

@@ -4,9 +4,9 @@ clear all;
 L = 50;
 
 % starting parameters
-par.c = 1.354;
-% par.c = 1.40;
-par.p = 1;
+% par.c = 1.354;
+% par.c = 1.38;
+par.c = 1.322;
 
 % for convenience
 c = par.c;
@@ -22,9 +22,11 @@ config.degree = 4;
 % x = linspace(-L, L, N+1)';
 % x = x(1:end-1);
 % D = D_fourier(N, L, config.degree);
+% D1 = D(:,:,1);
 % D2 = D(:,:,2);
 % D4 = D(:,:,4);
 % Id = eye(N);
+% h = x(2) - x(1);
 
 % Finite difference
 N = 513;
@@ -118,27 +120,23 @@ for rep = [1:maxreps]
     
 end
 
-%%
+%% fsolve appropriate one
 
-y0 = U(:,3);
+% for now, we pick manually, since it seems to work
+
+y0 = U(:,6);
 options = optimset('Display','iter','Jacobian','on');
 [ynew, fval] = fsolve( @(y) ChenExp(x,y,par,D,config), y0, options);
 
 
-%% Mountain Pass algorithm
-% 
-% Nbar = 10;
-% Ivals = zeros([Nbar,1]);
-% 
-% 
-% for index = [1:Nbar]
-%     Ivals(index) = Iz(x, ze * (index/Nbar), par, D, L);
-% end
-% 
-% [M, iMax] = max(Ivals);
-% 
-% % try to find better path
-% betterpath( x, ze * (iMax/Nbar), ze * ((iMax+1)/Nbar), par, D, L );
+%%
 
+% eigenvalues
+
+% [fval, A0] = ChenExp(x,ynew,par,D,config);
+% A1 = -c * D(:,:,1);
+% A2 = eye(N);
+
+% [V,lambda] = polyeig(A0,A1,A2);
 
 
