@@ -2,7 +2,7 @@
 
 % load data
 
-load chen1322;
+load chen12;
 
 y = ynew;
 c = par.c;
@@ -31,7 +31,7 @@ spacing = round( mean(locs(2:end) - locs(1:end-1)) / 4);
 start = locs(1);
 
 % which min/max we want
-minmax = 2; 
+minmax = 4; 
 
 join_pt = start + (minmax - 1) * spacing;
 
@@ -85,6 +85,21 @@ yF = spline(x,y,xF);
 yF(isnan(yF)) = 0;
 [yF, fval] = fsolve( @(y) ChenExp(xF,y,par,DF,configF), yF, options);
 
+%% higher order multipulses (symmetric)
+
+% triple pulse
+y2half = y2( center : end );
+[pks, locs] = findpeaks(-y2half);
+indices = find(abs(pks) > 1);
+peaklocs = locs(indices);
+join_pt = peaklocs(1);
+y2half = y2( center : end );
+ym_half    = y2( join_pt : center + join_pt - 1 );
+ym_right   = flip( ym_half(1:end-1) );
+ym         = [ ym_half ; ym_right ];
+options = optimset('Display','iter','Jacobian','on');
+[y3, fval] = fsolve( @(y) ChenExp(x,y,par,D,config), ym,options); 
+
 
 %% eigenvalues
 
@@ -98,6 +113,10 @@ yF(isnan(yF)) = 0;
 % Finite diff
 [fval, A0] = ChenExp(x,y2,par,D,config);
 D1 = D(:,:,1);
+
+% % Finite diff, 3-pulse
+% [fval, A0] = ChenExp(x,y3,par,D,config);
+% D1 = D(:,:,1);
 
 % % Finite diff single pulse
 % % [fval, A0] = ChenExp(x,y,par,D,config);

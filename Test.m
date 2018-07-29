@@ -1,12 +1,12 @@
 clear all;
 
 % grid for x
-L = 50;
+L = 30;
 
 % starting parameters
 % par.c = 1.354;
 % par.c = 1.38;
-par.c = 1.322;
+par.c = 1.2;
 
 % for convenience
 c = par.c;
@@ -29,7 +29,7 @@ config.degree = 4;
 % h = x(2) - x(1);
 
 % Finite difference
-N = 513;
+N = 1501.;
 config.method = 'FD';
 config.BC = 'none';
 config.degree = 4;
